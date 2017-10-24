@@ -27,16 +27,16 @@ class GameBoard extends StatelessWidget {
     return new GestureDetector(
         onHorizontalDragEnd: (DragEndDetails d) {
           if (d.primaryVelocity > 0) {
-            GameRedux.dispatch(context, new Action(ActionType.moveRight));
+            GameRedux.dispatch(context, moveRight());
           } else {
-            GameRedux.dispatch(context, new Action(ActionType.moveLeft));
+            GameRedux.dispatch(context, moveLeft());
           }
         },
         onVerticalDragEnd: (DragEndDetails d) {
           if (d.primaryVelocity > 0) {
-            GameRedux.dispatch(context, new Action(ActionType.moveDown));
+            GameRedux.dispatch(context, moveDown());
           } else {
-            GameRedux.dispatch(context, new Action(ActionType.moveUp));
+            GameRedux.dispatch(context, moveUp());
           }
         },
         child: new Text(GameRedux.stateOf(context).currentState.tiles.toString()),

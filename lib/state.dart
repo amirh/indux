@@ -1,8 +1,11 @@
+import 'dart:math' show Point;
+
 class BoardState {
   final List<List<int>> tiles;
+  final Point lastTileAdded;
   final int dimension;
 
-  BoardState(this.tiles) : dimension = tiles.length {
+  BoardState(this.tiles, {this.lastTileAdded}) : dimension = tiles.length {
     tiles.forEach((row) { assert(row.length == dimension); });
   }
 
@@ -57,6 +60,25 @@ class BoardState {
       ._rotateClockWise()
       .moveRight()
       ._rotateClockWise();
+  }
+
+  BoardState addNewTile(int randomValue, int maxValue) {
+    List<Point<int>> emptyCells = new List<Point<int>>();
+    List<List<int>> newTiles = new List<List<int>>(dimension);
+    for (int i = 0; i < dimension; i++) {
+      newTiles[i] = new List<int>(dimension);
+      for (int j = 0; j < dimension; j++) {
+        if (tiles[i][j] == 0) {
+          emptyCells.add(new Point(i, j));
+        }
+        newTiles[i][j] = tiles[i][j];
+      }
+    }
+
+    Point selectedPosition = emptyCells[randomValue % emptyCells.length];
+    int newValue = maxValue * 0.4 < randomValue ? 4 : 2;
+    newTiles[selectedPosition.x][selectedPosition.y] = newValue;
+    return new BoardState(newTiles, lastTileAdded: selectedPosition);
   }
 
   BoardState _rotateClockWise() {
