@@ -36,14 +36,30 @@ class BoardState {
   }
 
   BoardState moveUp() {
-    return rotateClockWise()
+    return _rotateClockWise()
       .moveRight()
-      .rotateClockWise()
-      .rotateClockWise()
-      .rotateClockWise();
+      ._rotateClockWise()
+      ._rotateClockWise()
+      ._rotateClockWise();
   }
 
-  BoardState rotateClockWise() {
+  BoardState moveLeft() {
+    return _rotateClockWise()
+      ._rotateClockWise()
+      .moveRight()
+      ._rotateClockWise()
+      ._rotateClockWise();
+  }
+
+  BoardState moveDown() {
+    return _rotateClockWise()
+      ._rotateClockWise()
+      ._rotateClockWise()
+      .moveRight()
+      ._rotateClockWise();
+  }
+
+  BoardState _rotateClockWise() {
     List<List<int>> result = new List<List<int>>(dimension);
     for (int i = 0; i < dimension; i++) {
       result[i] = new List<int>(dimension);
