@@ -1,0 +1,15 @@
+name: indux
+version: 0.0.1
+authors:
+  - Amir Hardon <amirha@google.com>
+description: InheritedWidget based Redux implementation for Flutter (experimental).
+homepage: https://github.com/amirh/indux
+
+dependencies:
+  flutter:
+    sdk: flutter
+  meta: ">=1.1.1 <2.0.0"
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
