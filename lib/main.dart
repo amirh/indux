@@ -16,7 +16,7 @@ class App2048 extends StatelessWidget {
         theme: new ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: new Game()
+        home: new Scaffold(body: new Game()),
       ),
     );
   }
@@ -26,21 +26,22 @@ class Game extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new GestureDetector(
-        onHorizontalDragEnd: (DragEndDetails d) {
-          if (d.primaryVelocity > 0) {
-            GameRedux.dispatch(context, moveRight());
-          } else {
-            GameRedux.dispatch(context, moveLeft());
-          }
-        },
-        onVerticalDragEnd: (DragEndDetails d) {
-          if (d.primaryVelocity > 0) {
-            GameRedux.dispatch(context, moveDown());
-          } else {
-            GameRedux.dispatch(context, moveUp());
-          }
-        },
-        child: new Scaffold(body: new GameGrid()),
+      behavior: HitTestBehavior.opaque,
+      onHorizontalDragEnd: (DragEndDetails d) {
+        if (d.primaryVelocity > 0) {
+          GameRedux.dispatch(context, moveRight());
+        } else {
+          GameRedux.dispatch(context, moveLeft());
+        }
+      },
+      onVerticalDragEnd: (DragEndDetails d) {
+        if (d.primaryVelocity > 0) {
+          GameRedux.dispatch(context, moveDown());
+        } else {
+          GameRedux.dispatch(context, moveUp());
+        }
+      },
+      child: new GameGrid(),
     );
   }
 }
