@@ -130,13 +130,55 @@ class Tile extends StatelessWidget {
               child: new Center(
                 child: new Text(value.toString()),
               ),
-              color: Colors.blue,
+              color: _colorForValue(value),
             ),
           ),
         ),
       ),
       alignment: alignment
     );
+  }
+
+  static Color _colorForValue(int value) {
+    var color;
+    switch(value) {
+      case 2:
+        color = Colors.yellow;
+        break;
+      case 4:
+        color = Colors.lightGreen;
+        break;
+      case 8:
+        color = Colors.blue;
+        break;
+      case 16:
+        color = Colors.amber;
+        break;
+      case 32:
+        color = Colors.cyan;
+        break;
+      case 64:
+        color = Colors.orange;
+        break;
+      case 128:
+        color = Colors.deepOrange;
+        break;
+      case 256:
+        color = Colors.brown;
+        break;
+      case 512:
+        color = Colors.blueGrey;
+        break;
+      case 1024:
+        color = Colors.pink;
+        break;
+      case 2048:
+        color = Colors.green;
+        break;
+      default:
+        color = Colors.red;
+    }
+    return color;
   }
 
   @override
