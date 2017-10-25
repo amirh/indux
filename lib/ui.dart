@@ -87,10 +87,11 @@ class Tile extends StatelessWidget {
   Widget build(BuildContext context) {
     double sizeFraction = 1.0 / boardDimension.toDouble();
 
-    double toXPosition = lerpDouble(-1.0, 1.0, j.toDouble() / boardDimension.toDouble());
-    double fromXPosition = lerpDouble(-1.0, 1.0, prevJ.toDouble() / boardDimension.toDouble());
-    double toYPosition = lerpDouble(-1.0, 1.0, i.toDouble() / boardDimension.toDouble());
-    double fromYPosition = lerpDouble(-1.0, 1.0, prevI.toDouble() / boardDimension.toDouble());
+    double maxTileIndex = (boardDimension -1 ).toDouble();
+    double toXPosition = lerpDouble(-1.0, 1.0, j.toDouble() / maxTileIndex);
+    double fromXPosition = lerpDouble(-1.0, 1.0, prevJ.toDouble() / maxTileIndex);
+    double toYPosition = lerpDouble(-1.0, 1.0, i.toDouble() / maxTileIndex);
+    double fromYPosition = lerpDouble(-1.0, 1.0, prevI.toDouble() / maxTileIndex);
 
     Animation<Alignment> alignment = new AlignmentTween(
       begin: new Alignment(fromXPosition, fromYPosition),
@@ -118,12 +119,12 @@ class Tile extends StatelessWidget {
     } else {
       fadeAnimation = new AlwaysStoppedAnimation(1.0);
     }
-    return new AlignmentTransition(
+    return new AlignTransition(
       child: new FractionallySizedBox(
         widthFactor: sizeFraction,
         heightFactor: sizeFraction,
         child: new Padding(
-          padding: new EdgeInsets.all(15.0),
+          padding: new EdgeInsets.all(4.0),
           child: new FadeTransition(
             opacity: fadeAnimation,
             child: new Container(
@@ -193,15 +194,3 @@ class Tile extends StatelessWidget {
 
 }
 
-
-class AlignmentTransition extends AnimatedWidget {
-  const AlignmentTransition({Animation<Alignment> alignment, this.child}) : super(listenable: alignment);
-
-  final Widget child;
-  Animation<Alignment> get alignment => listenable;
-
-  @override
-  Widget build(BuildContext context) {
-    return new Align(alignment: alignment.value, child: child);
-  }
-}
