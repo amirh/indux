@@ -16,7 +16,11 @@ class App2048 extends StatelessWidget {
         theme: new ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: new Scaffold(body: new Center(child: new Game())),
+        home: new Scaffold(
+          body: new Center(
+            child: _addBackgroundColor(new Game()),
+          ),
+        ),
       ),
     );
   }
@@ -44,4 +48,11 @@ class Game extends StatelessWidget {
       child: new GameGrid(),
     );
   }
+}
+
+Widget _addBackgroundColor(Widget child) {
+  return new Container(
+    child: child,
+    color: Colors.indigo,
+  );
 }
