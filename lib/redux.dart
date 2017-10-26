@@ -1,8 +1,9 @@
 import 'dart:math' show Random;
 
+import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
-import 'package:indux/indux.dart';
 import 'package:flutter_playground/state.dart';
+import 'package:indux/indux.dart';
 
 enum ActionType {
   moveLeft,
@@ -40,15 +41,22 @@ class GameRedux extends StatelessWidget {
   static BoardState reduce(BoardState state, Action action) {
     switch (action.type) {
       case ActionType.moveLeft:
-        return state.moveLeft().addNewTile(action.randomInt, _maxRand);
+        return _addNewTileIfMoved(state.moveLeft(), state, action.randomInt);
       case ActionType.moveUp:
-        return state.moveUp().addNewTile(action.randomInt, _maxRand);
+        return _addNewTileIfMoved(state.moveUp(), state, action.randomInt);
       case ActionType.moveRight:
-        return state.moveRight().addNewTile(action.randomInt, _maxRand);
+        return _addNewTileIfMoved(state.moveRight(), state, action.randomInt);
       case ActionType.moveDown:
-        return state.moveDown().addNewTile(action.randomInt, _maxRand);
+        return _addNewTileIfMoved(state.moveDown(), state, action.randomInt);
     }
     return state;
+  }
+
+  static BoardState _addNewTileIfMoved(BoardState newState, BoardState prevState, int randomInt) {
+    if (const DeepCollectionEquality().equals(prevState.tiles, newState.tiles)) {
+      return new BoardState(prevState.tiles);
+    }
+    return newState.addNewTile(randomInt, _maxRand);
   }
 
   static CurrentStoreState<BoardState, Action> stateOf(BuildContext context) {
