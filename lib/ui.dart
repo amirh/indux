@@ -13,50 +13,20 @@ class GameGrid extends StatefulWidget {
 }
 
 class GameGridState extends State<GameGrid> with TickerProviderStateMixin {
+
+  AnimationController _slideController;
+  AnimationController _fadeController;
+
   @override
   Widget build(BuildContext context) {
-    CurrentStoreState<BoardState, Action> storeState =
-      GameRedux.stateOf(context);
-    BoardState state = GameRedux.stateOf(context).state;
+    _recycleAnimationControllers();
 
-    List<TileMotionSpec> motionSpec = buildMotionSpec(
-      storeState.previousState,
-      storeState.state,
-      storeState.lastAction
-    );
+    CurrentStoreState<BoardState, Action> state = GameRedux.stateOf(context);
 
-    List<Tile> tiles = new List<Tile>();
-    var prevTiles = storeState?.previousState?.tiles ?? state.tiles;
-    for (int i = 0; i < motionSpec.length; i += 1) { 
-      TileMotionSpec spec = motionSpec[i];
-      int value;
-      if (spec.fadeIn)
-        value = storeState.state.tiles[spec.toI][spec.toJ];
-      else
-        value = prevTiles[spec.fromI][spec.fromJ];
-      tiles.add(new Tile(
-          spec.fromI,
-          spec.fromJ,
-          spec.toI,
-          spec.toJ,
-          value,
-          storeState.state.dimension,
-          vsync: this,
-          fadeIn: spec.fadeIn,
-      ));
-    }
-    if (state.lastTileAdded != null) {
-      tiles.add(new Tile(
-          state.lastTileAdded.x,
-          state.lastTileAdded.y,
-          state.lastTileAdded.x,
-          state.lastTileAdded.y,
-          state.tiles[state.lastTileAdded.x][state.lastTileAdded.y],
-          storeState.state.dimension,
-          vsync: this,
-          fadeIn: true
-      ));
-    }
+    List<TileMotionSpec> motionSpec =
+      buildMotionSpec(state.previousState, state.state, state.lastAction);
+
+    var tiles = _animatedTilesForSpec(motionSpec, state);
 
     return new AspectRatio(
       aspectRatio: 1.0,
@@ -66,9 +36,68 @@ class GameGridState extends State<GameGrid> with TickerProviderStateMixin {
     );
   }
 
+  List<AnimatedTile> _animatedTilesForSpec(List<TileMotionSpec> motionSpec, CurrentStoreState<BoardState, Action> state) {
+    List<AnimatedTile> tiles = new List<AnimatedTile>();
+    var prevTiles = state?.previousState?.tiles ?? state.state.tiles;
+    for (int i = 0; i < motionSpec.length; i += 1) { 
+      TileMotionSpec spec = motionSpec[i];
+      int value;
+      if (spec.fadeIn)
+        value = state.state.tiles[spec.toI][spec.toJ];
+      else
+        value = prevTiles[spec.fromI][spec.fromJ];
+      tiles.add(new AnimatedTile(
+          spec.fromI,
+          spec.fromJ,
+          spec.toI,
+          spec.toJ,
+          value,
+          state.state.dimension,
+          slideController: _slideController,
+          fadeController: _fadeController,
+          fadeIn: spec.fadeIn,
+      ));
+    }
+    if (state.state.lastTileAdded != null) {
+      tiles.add(new AnimatedTile(
+          state.state.lastTileAdded.x,
+          state.state.lastTileAdded.y,
+          state.state.lastTileAdded.x,
+          state.state.lastTileAdded.y,
+          state.state.tiles[state.state.lastTileAdded.x][state.state.lastTileAdded.y],
+          state.state.dimension,
+          slideController: _slideController,
+          fadeController: _fadeController,
+          fadeIn: true
+      ));
+    }
+    return tiles;
+  }
+
+  void _recycleAnimationControllers() {
+    _slideController?.dispose();
+    _fadeController?.dispose();
+
+    _slideController = new AnimationController(
+        duration: new Duration(milliseconds: 150),
+        vsync: this,
+    );
+    _fadeController = new AnimationController(
+        duration: new Duration(milliseconds: 300),
+        vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _slideController?.dispose();
+    _fadeController?.dispose();
+    super.dispose();
+  }
+
 }
 
-class Tile extends StatelessWidget {
+class AnimatedTile extends StatelessWidget {
   final int prevI;
   final int prevJ;
   final int i;
@@ -76,11 +105,13 @@ class Tile extends StatelessWidget {
   final int value;
   final int boardDimension;
   final bool fadeIn;
-  final TickerProvider vsync;
+  final AnimationController slideController;
+  final AnimationController fadeController;
 
-  Tile(this.prevI, this.prevJ, this.i, this.j, this.value, this.boardDimension, {
-    this.vsync,
+  AnimatedTile(this.prevI, this.prevJ, this.i, this.j, this.value, this.boardDimension, {
     this.fadeIn = false,
+    this.slideController,
+    this.fadeController,
   });
 
   @override
@@ -96,26 +127,18 @@ class Tile extends StatelessWidget {
     Animation<Alignment> alignment = new AlignmentTween(
       begin: new Alignment(fromXPosition, fromYPosition),
       end: new Alignment(toXPosition, toYPosition)
-    ) .animate(
-    new CurvedAnimation(
+    ).animate(new CurvedAnimation(
       curve: Curves.easeOut,
-      parent: new AnimationController(
-        duration: new Duration(milliseconds: 150),
-        vsync: vsync,
-      )..forward(),
-    )
-    );
+      parent: slideController,
+    ));
+    slideController.forward();
 
 
     Animation<double> fadeAnimation;
     if (fadeIn) {
-      AnimationController controller = new AnimationController(
-        duration: new Duration(milliseconds: 300),
-        vsync: vsync,
-      );
       fadeAnimation =
-        new CurvedAnimation(parent: controller, curve: Curves.easeOut);
-      controller.forward();
+        new CurvedAnimation(parent: fadeController, curve: Curves.easeOut);
+      fadeController.forward();
     } else {
       fadeAnimation = new AlwaysStoppedAnimation(1.0);
     }
@@ -123,63 +146,13 @@ class Tile extends StatelessWidget {
       child: new FractionallySizedBox(
         widthFactor: sizeFraction,
         heightFactor: sizeFraction,
-        child: new Padding(
-          padding: new EdgeInsets.all(4.0),
-          child: new FadeTransition(
-            opacity: fadeAnimation,
-            child: new Container(
-              child: new Center(
-                child: new Text(value.toString()),
-              ),
-              color: _colorForValue(value),
-            ),
-          ),
+        child: new FadeTransition(
+          opacity: fadeAnimation,
+          child: new Tile(value),
         ),
       ),
       alignment: alignment
     );
-  }
-
-  static Color _colorForValue(int value) {
-    var color;
-    switch(value) {
-      case 2:
-        color = Colors.yellow;
-        break;
-      case 4:
-        color = Colors.lightGreen;
-        break;
-      case 8:
-        color = Colors.blue;
-        break;
-      case 16:
-        color = Colors.amber;
-        break;
-      case 32:
-        color = Colors.cyan;
-        break;
-      case 64:
-        color = Colors.orange;
-        break;
-      case 128:
-        color = Colors.deepOrange;
-        break;
-      case 256:
-        color = Colors.brown;
-        break;
-      case 512:
-        color = Colors.blueGrey;
-        break;
-      case 1024:
-        color = Colors.pink;
-        break;
-      case 2048:
-        color = Colors.green;
-        break;
-      default:
-        color = Colors.red;
-    }
-    return color;
   }
 
   @override
@@ -194,3 +167,35 @@ class Tile extends StatelessWidget {
 
 }
 
+const Map<int, Color> _tileColors = const {
+  2: Colors.yellow,
+  4: Colors.lightGreen,
+  8: Colors.blue,
+  16: Colors.amber,
+  32: Colors.cyan,
+  64: Colors.orange,
+  128: Colors.deepOrange,
+  256: Colors.brown,
+  512: Colors.blueGrey,
+  1024: Colors.pink,
+  2048: Colors.green,
+};
+
+class Tile extends StatelessWidget {
+  final int value;
+
+  const Tile(this.value);
+
+  @override
+  Widget build(BuildContext context) {
+        return new Padding(
+          padding: new EdgeInsets.all(4.0),
+          child: new Container(
+              child: new Center(
+                child: new Text(value.toString()),
+              ),
+              color: _tileColors[value] ?? Colors.black,
+            ),
+        );
+  }
+}
