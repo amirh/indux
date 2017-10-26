@@ -16,7 +16,7 @@ class App2048 extends StatelessWidget {
         theme: new ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: new Scaffold(body: new Game()),
+        home: new Scaffold(body: new Center(child: new Game())),
       ),
     );
   }
