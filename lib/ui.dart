@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_playground/animation_spec.dart';
 import 'package:flutter_playground/redux.dart';
 import 'package:flutter_playground/state.dart';
-import 'package:flutter_playground/store/store.dart';
+import 'package:indux/indux.dart';
 
 class GameGrid extends StatefulWidget {
   @override
@@ -17,11 +17,11 @@ class GameGridState extends State<GameGrid> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     CurrentStoreState<BoardState, Action> storeState =
       GameRedux.stateOf(context);
-    BoardState state = GameRedux.stateOf(context).currentState;
+    BoardState state = GameRedux.stateOf(context).state;
 
     List<TileMotionSpec> motionSpec = buildMotionSpec(
       storeState.previousState,
-      storeState.currentState,
+      storeState.state,
       storeState.lastAction
     );
 
@@ -31,7 +31,7 @@ class GameGridState extends State<GameGrid> with TickerProviderStateMixin {
       TileMotionSpec spec = motionSpec[i];
       int value;
       if (spec.fadeIn)
-        value = storeState.currentState.tiles[spec.toI][spec.toJ];
+        value = storeState.state.tiles[spec.toI][spec.toJ];
       else
         value = prevTiles[spec.fromI][spec.fromJ];
       tiles.add(new Tile(
@@ -40,7 +40,7 @@ class GameGridState extends State<GameGrid> with TickerProviderStateMixin {
           spec.toI,
           spec.toJ,
           value,
-          storeState.currentState.dimension,
+          storeState.state.dimension,
           vsync: this,
           fadeIn: spec.fadeIn,
       ));
@@ -52,7 +52,7 @@ class GameGridState extends State<GameGrid> with TickerProviderStateMixin {
           state.lastTileAdded.x,
           state.lastTileAdded.y,
           state.tiles[state.lastTileAdded.x][state.lastTileAdded.y],
-          storeState.currentState.dimension,
+          storeState.state.dimension,
           vsync: this,
           fadeIn: true
       ));

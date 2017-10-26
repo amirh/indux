@@ -1,7 +1,7 @@
 import 'dart:math' show Random;
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_playground/store/store.dart';
+import 'package:indux/indux.dart';
 import 'package:flutter_playground/state.dart';
 
 enum ActionType {
