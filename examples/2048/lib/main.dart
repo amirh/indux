@@ -45,7 +45,7 @@ class Game extends StatelessWidget {
           GameRedux.dispatch(context, moveUp());
         }
       },
-      child: new GameGrid(),
+      child: const GameGrid(),
     );
   }
 }

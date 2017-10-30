@@ -8,6 +8,8 @@ import 'package:flutter_playground/state.dart';
 import 'package:indux/indux.dart';
 
 class GameGrid extends StatefulWidget {
+  const GameGrid({Key key}) : super(key: key);
+
   @override
   State createState() => new GameGridState();
 }
@@ -184,7 +186,7 @@ const Map<int, Color> _tileColors = const {
 class Tile extends StatelessWidget {
   final int value;
 
-  const Tile(this.value);
+  Tile(this.value) : super(key: new Key(value.toString()));
 
   @override
   Widget build(BuildContext context) {
