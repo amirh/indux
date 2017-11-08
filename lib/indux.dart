@@ -35,13 +35,13 @@ class Store<StateType, ActionType> extends StatefulWidget {
   @override
   State createState() => new _StoreState<StateType, ActionType>();
 
-  /// Returns the [CurrentStoreState] of the Store.
+  /// Returns the [StoreUpdate] of the Store.
   ///
   /// The context of the calling widget is be used to fetch the store from the
   /// widget tree.
-  static CurrentStoreState storeStateOf(BuildContext context) {
+  static StoreUpdate storeStateOf(BuildContext context) {
     final _StoreScope storeScope = context.inheritFromWidgetOfExactType(_StoreScope);
-    return storeScope?.state?.state;
+    return storeScope?.state?.update;
   }
 
   /// Dispatches an action to the Store.
@@ -60,12 +60,12 @@ typedef StateType Reducer<StateType, ActionType>(StateType state, ActionType act
 ///
 /// This class bundles the last action and the previous state as well, which is
 /// usually the information needed for figuring out which transition to show.
-class CurrentStoreState<StateType, ActionType> {
+class StoreUpdate<StateType, ActionType> {
   final StateType state;
   final ActionType lastAction;
   final StateType previousState;
 
-  const CurrentStoreState(this.state, this.lastAction, this.previousState);
+  const StoreUpdate(this.state, this.lastAction, this.previousState);
 
   @override
   String toString() {
@@ -74,7 +74,7 @@ class CurrentStoreState<StateType, ActionType> {
 
   @override
   bool operator==(other) =>
-    other is CurrentStoreState
+    other is StoreUpdate
     && other.state == state
     && other.lastAction == lastAction
     && other.previousState == previousState;
@@ -85,21 +85,21 @@ class CurrentStoreState<StateType, ActionType> {
 
 typedef void Dispatch<ActionType>(ActionType action);
 
-typedef void OnStoreUpdate<ActionType>(CurrentStoreState lastUpdate, Dispatch<ActionType> dispatcher);
+typedef void OnStoreUpdate<ActionType>(StoreUpdate update, Dispatch<ActionType> dispatcher);
 
 class _StoreState<StateType, ActionType> extends State<Store<StateType, ActionType>> {
-  CurrentStoreState<StateType, ActionType> state;
+  StoreUpdate<StateType, ActionType> update;
 
   void dispatch(ActionType action) {
-    StateType newState = widget.reducer(state.state, action);
-    state = new CurrentStoreState<StateType, ActionType>(
+    StateType newState = widget.reducer(update.state, action);
+    update = new StoreUpdate<StateType, ActionType>(
         newState,
         action,
-        state.state
+        update.state
         );
     setState(() {});
     new Future(() {
-       widget.middleware.forEach((m) { m(state, dispatch); });
+       widget.middleware.forEach((m) { m(update, dispatch); });
     });
   }
 
@@ -111,9 +111,9 @@ class _StoreState<StateType, ActionType> extends State<Store<StateType, ActionTy
   @override
   void initState() {
     super.initState();
-    state = new CurrentStoreState(widget.initialState, null, null);
+    update = new StoreUpdate(widget.initialState, null, null);
     new Future(() {
-       widget.middleware.forEach((m) { m(state, dispatch); });
+       widget.middleware.forEach((m) { m(update, dispatch); });
     });
   }
 }

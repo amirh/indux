@@ -8,11 +8,11 @@ class Action {
 }
 
 class StoreListener<S,A> extends StatelessWidget {
-  final List<CurrentStoreState<S,A>> lastStateUpdate = [];
+  final List<StoreUpdate<S,A>> storeUpdate = [];
 
   @override
   Widget build(BuildContext buildContext) {
-    lastStateUpdate.add(Store.storeStateOf(buildContext));
+    storeUpdate.add(Store.storeStateOf(buildContext));
     return new Container();
   }
 }
@@ -27,14 +27,14 @@ void main() {
           child: storeListener,
           reducer: (String state, String action) => action,
           middleware: <OnStoreUpdate<String>> [
-            (CurrentStoreState lastUpdate, Dispatch<String> dispatcher) {
-              stateUpdates.add(lastUpdate.state);
+            (StoreUpdate update, Dispatch<String> dispatcher) {
+              stateUpdates.add(update.state);
             }
           ]
         )
     );
     await tester.pump(new Duration(milliseconds: 1));
     expect(stateUpdates, ['initialState']);
-    expect(storeListener.lastStateUpdate, [new CurrentStoreState('initialState', null, null)]);
+    expect(storeListener.storeUpdate, [new StoreUpdate('initialState', null, null)]);
   });
 }

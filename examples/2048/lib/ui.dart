@@ -23,12 +23,12 @@ class GameGridState extends State<GameGrid> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     _recycleAnimationControllers();
 
-    CurrentStoreState<BoardState, Action> state = GameRedux.stateOf(context);
+    StoreUpdate<BoardState, Action> update = GameRedux.stateOf(context);
 
     List<TileMotionSpec> motionSpec =
-      buildMotionSpec(state.previousState, state.state, state.lastAction);
+      buildMotionSpec(update.previousState, update.state, update.lastAction);
 
-    var tiles = _animatedTilesForSpec(motionSpec, state);
+    var tiles = _animatedTilesForSpec(motionSpec, update);
 
     return new AspectRatio(
       aspectRatio: 1.0,
@@ -38,14 +38,14 @@ class GameGridState extends State<GameGrid> with TickerProviderStateMixin {
     );
   }
 
-  List<AnimatedTile> _animatedTilesForSpec(List<TileMotionSpec> motionSpec, CurrentStoreState<BoardState, Action> state) {
+  List<AnimatedTile> _animatedTilesForSpec(List<TileMotionSpec> motionSpec, StoreUpdate<BoardState, Action> update) {
     List<AnimatedTile> tiles = new List<AnimatedTile>();
-    var prevTiles = state?.previousState?.tiles ?? state.state.tiles;
+    var prevTiles = update?.previousState?.tiles ?? update.state.tiles;
     for (int i = 0; i < motionSpec.length; i += 1) { 
       TileMotionSpec spec = motionSpec[i];
       int value;
       if (spec.fadeIn)
-        value = state.state.tiles[spec.toI][spec.toJ];
+        value = update.state.tiles[spec.toI][spec.toJ];
       else
         value = prevTiles[spec.fromI][spec.fromJ];
       tiles.add(new AnimatedTile(
@@ -54,20 +54,20 @@ class GameGridState extends State<GameGrid> with TickerProviderStateMixin {
           spec.toI,
           spec.toJ,
           value,
-          state.state.dimension,
+          update.state.dimension,
           slideController: _slideController,
           fadeController: _fadeController,
           fadeIn: spec.fadeIn,
       ));
     }
-    if (state.state.lastTileAdded != null) {
+    if (update.state.lastTileAdded != null) {
       tiles.add(new AnimatedTile(
-          state.state.lastTileAdded.x,
-          state.state.lastTileAdded.y,
-          state.state.lastTileAdded.x,
-          state.state.lastTileAdded.y,
-          state.state.tiles[state.state.lastTileAdded.x][state.state.lastTileAdded.y],
-          state.state.dimension,
+          update.state.lastTileAdded.x,
+          update.state.lastTileAdded.y,
+          update.state.lastTileAdded.x,
+          update.state.lastTileAdded.y,
+          update.state.tiles[update.state.lastTileAdded.x][update.state.lastTileAdded.y],
+          update.state.dimension,
           slideController: _slideController,
           fadeController: _fadeController,
           fadeIn: true

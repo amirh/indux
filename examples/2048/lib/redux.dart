@@ -59,7 +59,7 @@ class GameRedux extends StatelessWidget {
     return newState.addNewTile(randomInt, _maxRand);
   }
 
-  static CurrentStoreState<BoardState, Action> stateOf(BuildContext context) {
+  static StoreUpdate<BoardState, Action> stateOf(BuildContext context) {
     return Store?.storeStateOf(context);
   }
 

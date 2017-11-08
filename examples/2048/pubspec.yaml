@@ -4,7 +4,8 @@ description: A new Flutter project.
 dependencies:
   flutter:
     sdk: flutter
-  indux: 0.0.1 
+  indux:
+    path: ../../
 
 dev_dependencies:
   flutter_test:
