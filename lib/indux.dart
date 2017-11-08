@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
@@ -22,10 +23,13 @@ class Store<StateType, ActionType> extends StatefulWidget {
 
   final StateType initialState;
 
+  final List<OnStoreUpdate<ActionType>> middleware;
+
   Store({
     @required this.child,
     @required this.initialState,
-    @required this.reducer
+    @required this.reducer,
+    this.middleware = const<OnStoreUpdate>[]
   });
 
   @override
@@ -62,19 +66,40 @@ class CurrentStoreState<StateType, ActionType> {
   final StateType previousState;
 
   const CurrentStoreState(this.state, this.lastAction, this.previousState);
+
+  @override
+  String toString() {
+    return '($state, $lastAction, $previousState)';
+  }
+
+  @override
+  bool operator==(other) =>
+    other is CurrentStoreState
+    && other.state == state
+    && other.lastAction == lastAction
+    && other.previousState == previousState;
+
+  @override
+  int get hashCode => hashValues(state, lastAction, previousState);
 }
+
+typedef void Dispatch<ActionType>(ActionType action);
+
+typedef void OnStoreUpdate<ActionType>(CurrentStoreState lastUpdate, Dispatch<ActionType> dispatcher);
 
 class _StoreState<StateType, ActionType> extends State<Store<StateType, ActionType>> {
   CurrentStoreState<StateType, ActionType> state;
 
   void dispatch(ActionType action) {
     StateType newState = widget.reducer(state.state, action);
-    setState(() {
-      state = new CurrentStoreState<StateType, ActionType>(
+    state = new CurrentStoreState<StateType, ActionType>(
         newState,
         action,
         state.state
-      );
+        );
+    setState(() {});
+    new Future(() {
+       widget.middleware.forEach((m) { m(state, dispatch); });
     });
   }
 
@@ -87,6 +112,9 @@ class _StoreState<StateType, ActionType> extends State<Store<StateType, ActionTy
   void initState() {
     super.initState();
     state = new CurrentStoreState(widget.initialState, null, null);
+    new Future(() {
+       widget.middleware.forEach((m) { m(state, dispatch); });
+    });
   }
 }
 
