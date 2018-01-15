@@ -170,7 +170,7 @@ class AnimatedTile extends StatelessWidget {
 }
 
 const Map<int, Color> _tileColors = const {
-  2: Colors.yellow,
+  2: const Color(0xfff4bc42),
   4: Colors.lightGreen,
   8: Colors.blue,
   16: Colors.amber,
@@ -194,9 +194,20 @@ class Tile extends StatelessWidget {
           padding: new EdgeInsets.all(4.0),
           child: new Container(
               child: new Center(
-                child: new Text(value.toString()),
+                child: new Text(
+                  value.toString(),
+                  style: const TextStyle(
+                    fontSize: 26.0,
+                    color: Colors.white,
+                  ),
+                ),
               ),
-              color: _tileColors[value] ?? Colors.black,
+              decoration: new ShapeDecoration(
+                color: _tileColors[value] ?? Colors.black,
+                shape: new RoundedRectangleBorder(
+                  borderRadius: new BorderRadius.circular(6.0),
+                ),
+              ),
             ),
         );
   }
