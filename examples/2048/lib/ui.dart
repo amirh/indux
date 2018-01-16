@@ -26,7 +26,7 @@ class GameGridState extends State<GameGrid> with TickerProviderStateMixin {
     StoreUpdate<BoardState, Action> update = GameRedux.stateOf(context);
 
     List<TileMotionSpec> motionSpec =
-      buildMotionSpec(update.previousState, update.state, update.lastAction);
+      buildMotionSpec(update.previousState, update.lastAction, update.state);
 
     var tiles = _animatedTilesForSpec(motionSpec, update);
 

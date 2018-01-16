@@ -17,7 +17,7 @@ class TileMotionSpec {
 
 }
 
-List<TileMotionSpec> buildMotionSpec(BoardState fromState, BoardState toState, Action action) {
+List<TileMotionSpec> buildMotionSpec(BoardState fromState, Action action, BoardState toState) {
     if (action?.type == ActionType.moveRight) {
       return _buildMoveRightSpec(fromState, toState);
     } else if (action?.type == ActionType.moveLeft) {

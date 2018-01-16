@@ -25,7 +25,7 @@ main() {
     );
 
     List<TileMotionSpec> motionSpec =
-      buildMotionSpec(fromState, toState, new Action(ActionType.moveRight));
+      buildMotionSpec(fromState, new Action(ActionType.moveRight), toState);
     expect(motionSpec.toString(), [
       new TileMotionSpec(0, 1, 0, 3),
       new TileMotionSpec(1, 3, 1, 3),
